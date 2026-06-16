@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>IM Lab Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2130;
+    --border: #252a3a;
+    --accent: #3d7cf5;
+    --accent-dim: #1e3a7a;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e8eaf0;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── START SCREEN ── */
+  #start-screen {
+    padding: 0;
+    background: var(--bg);
+  }
+
+  .start-hero {
+    background: linear-gradient(160deg, #0f1829 0%, #0d0f14 60%);
+    padding: 64px 24px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .start-hero .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .start-hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .start-hero h1 span {
+    color: var(--accent);
+  }
+
+  .start-hero p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+  }
+
+  .stat-pill {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-pill .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-pill .lbl {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .category-list {
+    padding: 0 24px 16px;
+  }
+
+  .category-list h2 {
+    font-size: 13px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding-top: 4px;
+  }
+
+  .cat-section {
+    margin-bottom: 20px;
+  }
+
+  .cat-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .start-btn-wrap {
+    padding: 20px 24px 48px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, transform 0.1s;
+    -webkit-appearance: none;
+  }
+
+  .btn-primary:active { transform: scale(0.98); background: #2d6ce0; }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz-screen {
+    background: var(--bg);
+  }
+
+  .quiz-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 52px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .q-counter {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .score-badges {
+    display: flex;
+    gap: 10px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .badge-green { background: #0d2e1e; color: var(--green); }
+  .badge-yellow { background: #2d200a; color: var(--yellow); }
+
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--border);
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  .quiz-body {
+    flex: 1;
+    padding: 24px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .problem-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 20px;
+  }
+
+  .problem-card .pc-eye {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .problem-card .pc-cat {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .problem-card .pc-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+  }
+
+  .quiz-prompt {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .quiz-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-size: 15px;
+    padding: 14px 16px;
+    resize: none;
+    min-height: 130px;
+    font-family: inherit;
+    line-height: 1.6;
+    outline: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+  }
+
+  .quiz-textarea:focus { border-color: var(--accent); }
+
+  .quiz-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .quiz-footer {
+    padding: 16px 20px 36px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── FEEDBACK SCREEN ── */
+  #feedback-screen {
+    background: var(--bg);
+  }
+
+  .fb-topbar {
+    padding: 52px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .fb-topbar .fb-eye {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .fb-topbar .fb-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .fb-body {
+    flex: 1;
+    padding: 20px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 40px;
+  }
+
+  .grade-banner {
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .grade-banner.strong { background: #0a2218; border: 1px solid #1a4a33; }
+  .grade-banner.partial { background: #251c06; border: 1px solid #4a3510; }
+  .grade-banner.needs  { background: #250a0a; border: 1px solid #4a1515; }
+
+  .grade-icon { font-size: 28px; }
+
+  .grade-text .grade-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  .grade-text .grade-val {
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .grade-banner.strong .grade-val { color: var(--green); }
+  .grade-banner.partial .grade-val { color: var(--yellow); }
+  .grade-banner.needs .grade-val { color: var(--red); }
+
+  .fb-problem-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .fb-problem-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .fb-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .fb-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 10px;
+  }
+
+  .fb-section-label.got  { color: var(--green); }
+  .fb-section-label.miss { color: var(--red); }
+  .fb-section-label.pearl { color: var(--yellow); }
+
+  .fb-section-body {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  .fb-section-body .lab-tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 7px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    margin: 2px 3px 2px 0;
+  }
+
+  .raw-feedback {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .score-row-fb {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .score-tile {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .score-tile .st-num { font-size: 24px; font-weight: 800; }
+  .score-tile .st-lbl { font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 2px; }
+
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    -webkit-appearance: none;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-secondary:active { transform: scale(0.98); background: var(--accent-dim); }
+
+  /* ── CATEGORY FILTER ── */
+  .cat-filter-wrap {
+    padding: 14px 20px 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    gap: 8px;
+    scrollbar-width: none;
+  }
+  .cat-filter-wrap::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-appearance: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Loading spinner */
+  .loading-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-wrap p {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  /* ── TOPIC PICKER ── */
+  #topic-screen {
+    background: var(--bg);
+  }
+
+  .topic-topbar {
+    padding: 52px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .topic-topbar h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .topic-topbar p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .topic-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 20px 100px;
+  }
+
+  .topic-section { margin-bottom: 24px; }
+
+  .topic-section-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none;
+    width: 100%;
+    text-align: left;
+    gap: 12px;
+  }
+
+  .topic-item:active { background: var(--surface2); border-color: var(--accent); }
+
+  .topic-item .ti-name {
+    flex: 1;
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .topic-item .ti-cat {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .ti-arrow { color: var(--text-muted); font-size: 14px; }
+
+  .topic-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px 36px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ══ START SCREEN ══ -->
+<div id="start-screen" class="screen active">
+  <div class="start-hero">
+    <div class="eyebrow">Internal Medicine · Lab Workup Quiz</div>
+    <h1>Know Your<br><span>Labs Cold.</span></h1>
+    <p>60+ inpatient conditions. Type your lab workup, get graded by AI like a tough attending.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-pill">
+      <div class="num">60+</div>
+      <div class="lbl">Conditions</div>
+    </div>
+    <div class="stat-pill">
+      <div class="num">10</div>
+      <div class="lbl">Categories</div>
+    </div>
+    <div class="stat-pill">
+      <div class="num">AI</div>
+      <div class="lbl">Graded</div>
+    </div>
+  </div>
+
+  <div class="category-list">
+    <h2>Topics Covered</h2>
+    <div class="cat-section">
+      <div class="cat-label">Renal & Electrolytes</div>
+      <div class="cat-chips">
+        <span class="chip">AKI</span><span class="chip">CKD flare</span><span class="chip">Hyponatremia</span><span class="chip">Hyperkalemia</span><span class="chip">Metabolic acidosis</span>
+      </div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-label">Cardiology</div>
+      <div class="cat-chips">
+        <span class="chip">NSTEMI</span><span class="chip">Heart failure</span><span class="chip">Afib</span><span class="chip">Endocarditis</span>
+      </div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-label">Pulmonology</div>
+      <div class="cat-chips">
+        <span class="chip">PE</span><span class="chip">COPD exac.</span><span class="chip">CAP</span><span class="chip">ARDS</span>
+      </div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-label">GI & Hepatology</div>
+      <div class="cat-chips">
+        <span class="chip">GI bleed</span><span class="chip">Pancreatitis</span><span class="chip">Hepatic enceph.</span><span class="chip">Cirrhosis</span>
+      </div>
+    </div>
+    <div class="cat-section">
+      <div class="cat-label">Endocrine · ID · Heme · Neuro</div>
+      <div class="cat-chips">
+        <span class="chip">DKA</span><span class="chip">Sepsis</span><span class="chip">DVT/PE</span><span class="chip">Stroke</span><span class="chip">Meningitis</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="start-btn-wrap">
+    <button class="btn-primary" onclick="startQuiz('random')">Start Random Quiz</button>
+    <button class="btn-secondary" style="margin-top:12px;" onclick="showTopics()">Browse by Topic</button>
+  </div>
+</div>
+
+<!-- ══ TOPIC PICKER ══ -->
+<div id="topic-screen" class="screen">
+  <div class="topic-topbar">
+    <h2>Choose a Topic</h2>
+    <p>Tap any condition to quiz yourself on it</p>
+  </div>
+  <div class="topic-body" id="topic-list-body">
+    <!-- populated by JS -->
+  </div>
+  <div class="topic-footer">
+    <button class="btn-secondary" onclick="showScreen('start-screen')">← Back</button>
+  </div>
+</div>
+
+<!-- ══ QUIZ SCREEN ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-topbar">
+    <span class="q-counter" id="q-counter">Q 1</span>
+    <div class="score-badges">
+      <span class="badge badge-green" id="score-strong">✓ 0</span>
+      <span class="badge badge-yellow" id="score-partial">~ 0</span>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="problem-card">
+      <div class="pc-eye">Clinical Problem</div>
+      <div class="pc-cat" id="pc-cat"></div>
+      <div class="pc-name" id="pc-name">Loading...</div>
+    </div>
+
+    <p class="quiz-prompt">What labs would you order and trend for this patient? Include initial workup, serial labs, and any special studies.</p>
+
+    <textarea
+      class="quiz-textarea"
+      id="quiz-input"
+      placeholder="e.g. BMP for Cr/BUN/lytes, CBC, troponin q6h, UA with micro, LFTs, coags, blood cultures × 2..."
+      rows="6"
+    ></textarea>
+    <p class="quiz-hint">Think broadly — initial orders, trending intervals, and any targeted tests.</p>
+  </div>
+
+  <div class="quiz-footer">
+    <button class="btn-primary" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+    <button class="btn-secondary" onclick="skipQuestion()">Skip →</button>
+  </div>
+</div>
+
+<!-- ══ FEEDBACK SCREEN ══ -->
+<div id="feedback-screen" class="screen">
+  <div class="fb-topbar">
+    <div class="fb-eye">Attending Feedback</div>
+    <div class="fb-title" id="fb-title">Results</div>
+  </div>
+
+  <div class="fb-body" id="fb-body">
+    <div class="loading-wrap" id="fb-loading">
+      <div class="spinner"></div>
+      <p>Attending is reviewing...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ ALL CONDITIONS ══
+const CONDITIONS = [
+  // RENAL & ELECTROLYTES
+  { name: "Acute Kidney Injury (AKI)", cat: "Renal & Electrolytes" },
+  { name: "Chronic Kidney Disease Exacerbation", cat: "Renal & Electrolytes" },
+  { name: "Hyponatremia", cat: "Renal & Electrolytes" },
+  { name: "Hypernatremia", cat: "Renal & Electrolytes" },
+  { name: "Hypokalemia", cat: "Renal & Electrolytes" },
+  { name: "Hyperkalemia", cat: "Renal & Electrolytes" },
+  { name: "Hypomagnesemia", cat: "Renal & Electrolytes" },
+  { name: "Hypercalcemia", cat: "Renal & Electrolytes" },
+  { name: "Hypocalcemia", cat: "Renal & Electrolytes" },
+  { name: "Metabolic Acidosis (High Anion Gap)", cat: "Renal & Electrolytes" },
+  { name: "Metabolic Alkalosis", cat: "Renal & Electrolytes" },
+  { name: "Rhabdomyolysis", cat: "Renal & Electrolytes" },
+  { name: "Nephrotic Syndrome", cat: "Renal & Electrolytes" },
+  { name: "Nephritic Syndrome / Glomerulonephritis", cat: "Renal & Electrolytes" },
+
+  // CARDIOLOGY
+  { name: "NSTEMI / Unstable Angina", cat: "Cardiology" },
+  { name: "STEMI", cat: "Cardiology" },
+  { name: "Acute Decompensated Heart Failure", cat: "Cardiology" },
+  { name: "Atrial Fibrillation with RVR", cat: "Cardiology" },
+  { name: "Infective Endocarditis", cat: "Cardiology" },
+  { name: "Hypertensive Emergency", cat: "Cardiology" },
+  { name: "Aortic Dissection", cat: "Cardiology" },
+  { name: "Cardiac Tamponade", cat: "Cardiology" },
+  { name: "Myocarditis", cat: "Cardiology" },
+  { name: "Cardiogenic Shock", cat: "Cardiology" },
+
+  // PULMONOLOGY
+  { name: "Pulmonary Embolism (PE)", cat: "Pulmonology" },
+  { name: "COPD Exacerbation", cat: "Pulmonology" },
+  { name: "Community-Acquired Pneumonia (CAP)", cat: "Pulmonology" },
+  { name: "Hospital-Acquired Pneumonia (HAP)", cat: "Pulmonology" },
+  { name: "ARDS", cat: "Pulmonology" },
+  { name: "Pleural Effusion (new, undiagnosed)", cat: "Pulmonology" },
+  { name: "Pneumothorax", cat: "Pulmonology" },
+  { name: "Hemoptysis Workup", cat: "Pulmonology" },
+  { name: "Asthma Exacerbation", cat: "Pulmonology" },
+  { name: "Pulmonary Hypertension", cat: "Pulmonology" },
+
+  // GI & HEPATOLOGY
+  { name: "Upper GI Bleed", cat: "GI & Hepatology" },
+  { name: "Lower GI Bleed", cat: "GI & Hepatology" },
+  { name: "Acute Pancreatitis", cat: "GI & Hepatology" },
+  { name: "Hepatic Encephalopathy", cat: "GI & Hepatology" },
+  { name: "Acute Liver Failure", cat: "GI & Hepatology" },
+  { name: "Cirrhosis Decompensation", cat: "GI & Hepatology" },
+  { name: "Spontaneous Bacterial Peritonitis (SBP)", cat: "GI & Hepatology" },
+  { name: "Cholangitis / Choledocholithiasis", cat: "GI & Hepatology" },
+  { name: "Acute Cholecystitis", cat: "GI & Hepatology" },
+  { name: "Mesenteric Ischemia", cat: "GI & Hepatology" },
+  { name: "Clostridium difficile Colitis", cat: "GI & Hepatology" },
+  { name: "Inflammatory Bowel Disease Flare", cat: "GI & Hepatology" },
+
+  // ENDOCRINOLOGY
+  { name: "Diabetic Ketoacidosis (DKA)", cat: "Endocrinology" },
+  { name: "Hyperosmolar Hyperglycemic State (HHS)", cat: "Endocrinology" },
+  { name: "Hypoglycemia (severe/recurrent)", cat: "Endocrinology" },
+  { name: "Adrenal Insufficiency / Addisonian Crisis", cat: "Endocrinology" },
+  { name: "Thyroid Storm", cat: "Endocrinology" },
+  { name: "Myxedema Coma", cat: "Endocrinology" },
+  { name: "Hypercalcemia of Malignancy", cat: "Endocrinology" },
+  { name: "Syndrome of Inappropriate ADH (SIADH)", cat: "Endocrinology" },
+  { name: "Pheochromocytoma Crisis", cat: "Endocrinology" },
+
+  // INFECTIOUS DISEASE
+  { name: "Sepsis / Septic Shock", cat: "Infectious Disease" },
+  { name: "Bacteremia / Line Infection", cat: "Infectious Disease" },
+  { name: "Urinary Tract Infection / Urosepsis", cat: "Infectious Disease" },
+  { name: "Bacterial Meningitis", cat: "Infectious Disease" },
+  { name: "HIV / AIDS Admission", cat: "Infectious Disease" },
+  { name: "Neutropenic Fever", cat: "Infectious Disease" },
+  { name: "Osteomyelitis", cat: "Infectious Disease" },
+  { name: "Cellulitis / Necrotizing Fasciitis", cat: "Infectious Disease" },
+  { name: "Tuberculosis (active)", cat: "Infectious Disease" },
+  { name: "Fungal Infection (Candidemia)", cat: "Infectious Disease" },
+
+  // HEMATOLOGY & ONCOLOGY
+  { name: "Anemia Workup", cat: "Hematology & Oncology" },
+  { name: "Thrombocytopenia Workup", cat: "Hematology & Oncology" },
+  { name: "DVT (new diagnosis)", cat: "Hematology & Oncology" },
+  { name: "Heparin-Induced Thrombocytopenia (HIT)", cat: "Hematology & Oncology" },
+  { name: "Disseminated Intravascular Coagulation (DIC)", cat: "Hematology & Oncology" },
+  { name: "Sickle Cell Crisis (VOC)", cat: "Hematology & Oncology" },
+  { name: "Tumor Lysis Syndrome", cat: "Hematology & Oncology" },
+  { name: "Transfusion Reaction", cat: "Hematology & Oncology" },
+  { name: "Thrombotic Thrombocytopenic Purpura (TTP)", cat: "Hematology & Oncology" },
+  { name: "Leukocytosis / Leukemia Workup", cat: "Hematology & Oncology" },
+
+  // NEUROLOGY
+  { name: "Acute Ischemic Stroke", cat: "Neurology" },
+  { name: "Intracranial Hemorrhage", cat: "Neurology" },
+  { name: "Status Epilepticus", cat: "Neurology" },
+  { name: "Altered Mental Status Workup", cat: "Neurology" },
+  { name: "Myasthenic Crisis", cat: "Neurology" },
+  { name: "Guillain-Barré Syndrome", cat: "Neurology" },
+  { name: "Wernicke Encephalopathy", cat: "Neurology" },
+
+  // RHEUMATOLOGY & AUTOIMMUNE
+  { name: "Lupus Flare (SLE)", cat: "Rheumatology" },
+  { name: "Vasculitis Workup", cat: "Rheumatology" },
+  { name: "Rheumatoid Arthritis Flare", cat: "Rheumatology" },
+  { name: "Crystal Arthropathy (Gout / Pseudogout)", cat: "Rheumatology" },
+  { name: "Myositis / Inflammatory Myopathy", cat: "Rheumatology" },
+
+  // TOXICOLOGY & OTHER
+  { name: "Acetaminophen Overdose", cat: "Toxicology & Other" },
+  { name: "Alcohol Withdrawal", cat: "Toxicology & Other" },
+  { name: "Opioid Overdose / Toxidrome", cat: "Toxicology & Other" },
+  { name: "Digoxin Toxicity", cat: "Toxicology & Other" },
+  { name: "Lithium Toxicity", cat: "Toxicology & Other" },
+  { name: "Malnutrition / Refeeding Syndrome", cat: "Toxicology & Other" },
+  { name: "Post-Operative Complications (general)", cat: "Toxicology & Other" },
+  { name: "Syncope Workup", cat: "Toxicology & Other" },
+];
+
+// ══ STATE ══
+let state = {
+  mode: 'random',       // 'random' | 'topic'
+  currentProblem: null,
+  qNum: 0,
+  score: { strong: 0, partial: 0, total: 0 },
+  lastProblem: null,
+  specificTopic: null,
+};
+
+// ══ HELPERS ══
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function pickRandom(exclude) {
+  const pool = CONDITIONS.filter(c => c.name !== exclude);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ══ START ══
+function startQuiz(mode, specificTopic) {
+  state.mode = mode;
+  state.specificTopic = specificTopic || null;
+  state.qNum = 0;
+  state.score = { strong: 0, partial: 0, total: 0 };
+  state.lastProblem = null;
+  nextQuestion();
+}
+
+function showTopics() {
+  buildTopicList();
+  showScreen('topic-screen');
+}
+
+function buildTopicList() {
+  const body = document.getElementById('topic-list-body');
+  const byCategory = {};
+  CONDITIONS.forEach(c => {
+    if (!byCategory[c.cat]) byCategory[c.cat] = [];
+    byCategory[c.cat].push(c);
+  });
+
+  let html = '';
+  Object.keys(byCategory).forEach(cat => {
+    html += `<div class="topic-section">
+      <div class="topic-section-head">${cat}</div>`;
+    byCategory[cat].forEach(c => {
+      html += `<button class="topic-item" onclick="startQuizTopic('${c.name.replace(/'/g,"\\'")}')">
+        <span class="ti-name">${c.name}</span>
+        <span class="ti-arrow">›</span>
+      </button>`;
+    });
+    html += `</div>`;
+  });
+  body.innerHTML = html;
+}
+
+function startQuizTopic(name) {
+  const cond = CONDITIONS.find(c => c.name === name);
+  if (!cond) return;
+  state.mode = 'topic';
+  state.specificTopic = cond;
+  state.qNum = 0;
+  state.score = { strong: 0, partial: 0, total: 0 };
+  state.lastProblem = null;
+  loadQuestion(cond);
+  showScreen('quiz-screen');
+}
+
+// ══ QUIZ FLOW ══
+function nextQuestion() {
+  let cond;
+  if (state.mode === 'topic' && state.specificTopic) {
+    cond = state.specificTopic;
+  } else {
+    cond = pickRandom(state.lastProblem);
+  }
+  loadQuestion(cond);
+  showScreen('quiz-screen');
+}
+
+function loadQuestion(cond) {
+  state.currentProblem = cond;
+  state.qNum++;
+  document.getElementById('pc-name').textContent = cond.name;
+  document.getElementById('pc-cat').textContent = cond.cat;
+  document.getElementById('quiz-input').value = '';
+  document.getElementById('q-counter').textContent = `Q ${state.qNum}`;
+  updateScoreBadges();
+
+  const pct = Math.min((state.score.total / 10) * 100, 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Submit Answer';
+  btn.disabled = false;
+}
+
+function updateScoreBadges() {
+  document.getElementById('score-strong').textContent = `✓ ${state.score.strong}`;
+  document.getElementById('score-partial').textContent = `~ ${state.score.partial}`;
+}
+
+function skipQuestion() {
+  state.lastProblem = state.currentProblem?.name;
+  nextQuestion();
+}
+
+// ══ SUBMIT ══
+async function submitAnswer() {
+  const answer = document.getElementById('quiz-input').value.trim();
+  if (!answer) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Grading...';
+
+  showScreen('feedback-screen');
+  document.getElementById('fb-title').textContent = state.currentProblem.name;
+  document.getElementById('fb-body').innerHTML = `
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p>Attending is reviewing...</p>
+    </div>`;
+
+  const prompt = `You are a demanding but fair internal medicine attending on rounds, quizzing a student preparing for residency.
+
+Clinical problem: "${state.currentProblem.name}" (Category: ${state.currentProblem.cat})
+
+Student's answer: "${answer}"
+
+Grade their lab workup. Respond ONLY with a JSON object, no markdown backticks, in this exact format:
+{
+  "grade": "STRONG" or "PARTIAL" or "NEEDS WORK",
+  "got_right": "Specific labs they correctly identified. Be encouraging and specific.",
+  "missed": "Important labs or trends they missed. Be specific with lab names, timing (e.g. 'q6h troponins', 'daily BMP'), and clinical relevance.",
+  "pearl": "One high-yield clinical pearl about this workup that will stick with them on the wards. Make it practical and memorable."
+}`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    const data = await response.json();
+    const raw = data.content?.map(b => b.text || "").join("\n") || "{}";
+    const clean = raw.replace(/```json|```/g, "").trim();
+
+    let parsed;
+    try { parsed = JSON.parse(clean); }
+    catch(e) { parsed = { grade: "PARTIAL", got_right: "See feedback below.", missed: raw, pearl: "" }; }
+
+    const grade = (parsed.grade || "PARTIAL").toUpperCase();
+    if (grade === "STRONG") { state.score.strong++; state.score.total++; }
+    else if (grade === "PARTIAL") { state.score.partial++; state.score.total++; }
+    else { state.score.total++; }
+    state.lastProblem = state.currentProblem.name;
+
+    renderFeedback(parsed, grade);
+    updateScoreBadges();
+
+  } catch(err) {
+    document.getElementById('fb-body').innerHTML = `
+      <p style="color:var(--red);padding:20px;">Connection error. Please try again.</p>
+      <div style="padding:0 20px 20px;">
+        <button class="btn-secondary" onclick="showScreen('quiz-screen')">← Back</button>
+      </div>`;
+  }
+}
+
+function renderFeedback(parsed, grade) {
+  const gradeClass = grade === "STRONG" ? "strong" : grade === "PARTIAL" ? "partial" : "needs";
+  const gradeIcon = grade === "STRONG" ? "🟢" : grade === "PARTIAL" ? "🟡" : "🔴";
+  const gradeDisplay = grade === "NEEDS WORK" ? "Needs Work" : grade === "STRONG" ? "Strong" : "Partial";
+
+  const modeNextLabel = state.mode === 'topic'
+    ? `Retry This Topic`
+    : `Next Problem →`;
+
+  const html = `
+    <div class="score-row-fb">
+      <div class="score-tile"><div class="st-num" style="color:var(--green)">${state.score.strong}</div><div class="st-lbl">Strong</div></div>
+      <div class="score-tile"><div class="st-num" style="color:var(--yellow)">${state.score.partial}</div><div class="st-lbl">Partial</div></div>
+      <div class="score-tile"><div class="st-num" style="color:var(--text-muted)">${state.score.total}</div><div class="st-lbl">Done</div></div>
+    </div>
+
+    <div class="fb-problem-tag">${state.currentProblem.cat}</div>
+    <div class="fb-problem-name">${state.currentProblem.name}</div>
+
+    <div class="grade-banner ${gradeClass}">
+      <div class="grade-icon">${gradeIcon}</div>
+      <div class="grade-text">
+        <div class="grade-label">Grade</div>
+        <div class="grade-val">${gradeDisplay}</div>
+      </div>
+    </div>
+
+    ${parsed.got_right ? `
+    <div class="fb-section">
+      <div class="fb-section-label got">✓ Got Right</div>
+      <div class="fb-section-body">${parsed.got_right}</div>
+    </div>` : ''}
+
+    ${parsed.missed ? `
+    <div class="fb-section">
+      <div class="fb-section-label miss">✗ Missed</div>
+      <div class="fb-section-body">${parsed.missed}</div>
+    </div>` : ''}
+
+    ${parsed.pearl ? `
+    <div class="fb-section">
+      <div class="fb-section-label pearl">💡 Pearl</div>
+      <div class="fb-section-body">${parsed.pearl}</div>
+    </div>` : ''}
+
+    <button class="btn-primary" style="margin-top:8px;" onclick="nextQuestion()">${modeNextLabel}</button>
+    <button class="btn-secondary" onclick="showTopics()">Browse Topics</button>
+    <button class="btn-secondary" onclick="showScreen('start-screen')">Home</button>
+    <div style="height:20px;"></div>
+  `;
+
+  document.getElementById('fb-body').innerHTML = html;
+}
+</script>
+</body>
+</html>
